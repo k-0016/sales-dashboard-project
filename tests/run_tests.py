@@ -9,19 +9,15 @@ import logging
 import sys
 import pytest
 
-# -------------------------------
 # Logging setup
-# -------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
 log = logging.getLogger("tests.runner")
 
-# -------------------------------
 # Constants
-# -------------------------------
-TEST_PATH = "/opt/airflow/dags/tests/"  # Airflow mounts tests here
+TEST_PATH = "/opt/airflow/dags/tests/"
 
 
 def main():
@@ -40,3 +36,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
