@@ -10,9 +10,7 @@ import pandas as pd
 log = logging.getLogger("tests.business_quality")
 
 
-# -------------------------------
 # Dimension Tests
-# -------------------------------
 
 def test_segment_values(engine):
     """Segments in dim_customer should only be expected categories"""
@@ -32,9 +30,7 @@ def test_region_values(engine):
     assert not bad, f"❌ Unexpected region values found: {bad}"
 
 
-# -------------------------------
 # KPI vs Raw Consistency
-# -------------------------------
 
 def test_fact_vs_raw_revenue(engine):
     """Fact/KPI revenue should exactly match raw sales totals"""
@@ -49,9 +45,7 @@ def test_fact_vs_raw_revenue(engine):
     assert diff < 1e-6, f"❌ Fact revenue does not match raw sales (diff={diff})"
 
 
-# -------------------------------
 # Forecast Tests
-# -------------------------------
 
 def test_forecast_continuity(engine):
     """Forecast should start after the last actual KPI date"""
@@ -80,3 +74,4 @@ def test_forecast_ranges(engine):
     log.info(f"Checked {len(df)} forecast rows")
     assert bad_bounds.empty, "❌ Some forecasts fall outside prediction intervals"
     assert negatives.empty, "❌ Some forecasts are negative"
+
