@@ -64,3 +64,9 @@ jobs:
 
       - name: Run tests
         run: pytest -v tests/
+        env:
+          DB_USER: salesuser
+          DB_PASS: salespass
+          DB_NAME: salesdb
+          DB_HOST: localhost
+          DB_PORT: 5432
