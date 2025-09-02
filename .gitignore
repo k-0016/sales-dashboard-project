@@ -17,4 +17,4 @@ airflow_logs/
 
 # Data files (keep only sample if needed)
 data/*.csv
-!data/sample_train.csv
+!data/train.csv
