@@ -1,0 +1,61 @@
+version: '3.8'
+
+x-airflow-common: &airflow-common
+  build: .
+  environment:
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://salesuser:salespass@postgres_db:5432/salesdb
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./etl:/opt/airflow/dags/etl
+    - ./forecast:/opt/airflow/dags/forecast
+    - ./db:/opt/airflow/dags/db
+    - ./tests:/opt/airflow/dags/tests
+    - ./data:/opt/airflow/dags/data   # 👈 so Airflow can see train.csv
+    - airflow_logs:/opt/airflow/logs
+  depends_on:
+    postgres_db:
+      condition: service_healthy
+
+services:
+  postgres_db:
+    image: postgres:14
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=salesuser
+      - POSTGRES_PASSWORD=salespass
+      - POSTGRES_DB=salesdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U salesuser -d salesdb"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    entrypoint: /bin/bash
+    command: -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com"
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    restart: always
+    command: webserver
+    ports:
+      - "8080:8080"
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    restart: always
+    command: scheduler
+
+volumes:
+  postgres_data:
+  airflow_logs:

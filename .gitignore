@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Airflow & Logs
+logs/
+airflow_logs/
+*.log
+
+# OS
+.DS_Store
+
+# Env files
+.env
+
+# Data files (keep only sample if needed)
+data/*.csv
+!data/sample_train.csv
