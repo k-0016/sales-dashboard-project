@@ -9,10 +9,7 @@ import pandas as pd
 log = logging.getLogger("tests.transforms_forecast")
 
 
-# -------------------------------
 # KPI Table Tests
-# -------------------------------
-
 def test_kpi_daily_not_empty(engine):
     """kpi_daily should have rows"""
     df = pd.read_sql("SELECT COUNT(*) AS cnt FROM kpi_daily", engine)
@@ -35,9 +32,7 @@ def test_kpi_daily_no_nulls(engine):
     assert df["cnt"].iloc[0] == 0, "❌ Found NULLs in kpi_daily"
 
 
-# -------------------------------
 # Cohort Analysis Tests
-# -------------------------------
 
 def test_cohort_analysis_structure(engine):
     """cohort_analysis should have expected columns"""
@@ -55,9 +50,7 @@ def test_cohort_retention_non_negative(engine):
     assert min_val >= 0, "❌ Found negative retained_customers in cohort_analysis"
 
 
-# -------------------------------
 # Forecast Table Tests
-# -------------------------------
 
 def test_forecast_has_required_columns(engine):
     """forecast_revenue should have Prophet output columns"""
@@ -93,3 +86,4 @@ def test_forecast_no_nulls(engine):
     """, engine)
     log.info(f"forecast_revenue null violations = {df['cnt'].iloc[0]}")
     assert df["cnt"].iloc[0] == 0, "❌ Found NULL values in forecast_revenue"
+
