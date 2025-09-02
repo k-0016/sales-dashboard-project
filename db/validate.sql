@@ -1,7 +1,5 @@
--- ==========================================
 -- Validation Script: Raw vs Fact vs KPI vs Forecast vs Cohort
 -- Run after ETL + Transform + Forecast
--- ==========================================
 
 -- 1. Row counts
 SELECT 'raw_sales' AS table, COUNT(*) AS rows FROM raw_sales
@@ -38,3 +36,4 @@ SELECT column_name, data_type
 FROM information_schema.columns
 WHERE table_name = 'cohort_analysis'
 ORDER BY ordinal_position;
+
