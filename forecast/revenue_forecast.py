@@ -12,24 +12,20 @@ from prophet import Prophet
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
-# -------------------------------
 # Logging setup
-# -------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
 log = logging.getLogger("forecast.revenue")
 
-# -------------------------------
 # Env variables
-# -------------------------------
 load_dotenv()
 
 DB_USER = os.getenv("DB_USER", "salesuser")
 DB_PASS = os.getenv("DB_PASS", "salespass")
 DB_NAME = os.getenv("DB_NAME", "salesdb")
-DB_HOST = os.getenv("DB_HOST", "postgres_db")  # for Docker networking
+DB_HOST = os.getenv("DB_HOST", "postgres_db")
 DB_PORT = os.getenv("DB_PORT", "5432")
 
 FORECAST_HORIZON = 90  # days
@@ -42,9 +38,7 @@ def get_engine():
 def main():
     engine = get_engine()
 
-    # -------------------------------
     # 1. Load KPI data
-    # -------------------------------
     df = pd.read_sql(
         "SELECT order_date, total_revenue FROM kpi_daily ORDER BY order_date",
         engine
@@ -71,31 +65,22 @@ def main():
 
     prophet_df = df.rename(columns={"order_date": "ds", "total_revenue": "y"})
 
-    # -------------------------------
     # 2. Fit Prophet
-    # -------------------------------
     model = Prophet(daily_seasonality=True, yearly_seasonality=True)
     model.fit(prophet_df)
 
-    # -------------------------------
-    # 3. Forecast future only
-    # -------------------------------
-    # 3. Forecast future only
     # 3. Forecast future only
     future = model.make_future_dataframe(
         periods=FORECAST_HORIZON,
         freq="D",
-        include_history=True   # include full history
+        include_history=True
     )
     forecast = model.predict(future)[["ds", "yhat", "yhat_lower", "yhat_upper"]]
 
-    # Keep only strictly future rows
     forecast = forecast[forecast["ds"] > last_actual].reset_index(drop=True)
 
 
-    # -------------------------------
     # 4. Ensure table exists & refresh it
-    # -------------------------------
     with engine.begin() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS forecast_revenue (
@@ -114,3 +99,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
