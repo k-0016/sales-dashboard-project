@@ -14,9 +14,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
-# -------------------------------
 # Logging config
-# -------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -24,9 +22,8 @@ logging.basicConfig(
 )
 log = logging.getLogger("etl.load_data")
 
-# -------------------------------
+
 # Load environment variables
-# -------------------------------
 load_dotenv()
 
 DB_USER = os.getenv("DB_USER", "salesuser")
@@ -58,9 +55,7 @@ def get_engine():
 
 def main():
     """Main ETL process"""
-    # -------------------------------
     # 1) Load CSV
-    # -------------------------------
     try:
         df = pd.read_csv(CSV_PATH)
         log.info(f"✅ Loaded CSV: rows={len(df):,}, cols={len(df.columns)} from {CSV_PATH}")
@@ -77,35 +72,25 @@ def main():
         if col not in df.columns:
             raise ValueError(f"❌ Missing required column: {col}")
 
-    # -------------------------------
     # 2) Parse dates
-    # -------------------------------
     for col in ["Order Date", "Ship Date"]:
         df[col] = pd.to_datetime(df[col], errors="coerce", dayfirst=True)
 
-    # -------------------------------
     # 3) Coerce numeric fields
-    # -------------------------------
     df["Sales"] = pd.to_numeric(df["Sales"], errors="coerce")
 
-    # -------------------------------
     # 4) Drop rows with missing critical fields
-    # -------------------------------
     before = len(df)
     df = df.dropna(subset=required)
     dropped = before - len(df)
     log.info(f"🧹 Dropped {dropped:,} rows with NULLs in critical fields")
 
-    # -------------------------------
     # 5) Validate non-negative sales
-    # -------------------------------
     neg_ct = (df["Sales"] < 0).sum()
     if neg_ct > 0:
         raise ValueError(f"❌ Found {neg_ct:,} rows with negative Sales")
 
-    # -------------------------------
     # 6) Aggregate duplicates
-    # -------------------------------
     before = len(df)
     agg_fields = {
         "Order Date": "first",
@@ -130,27 +115,21 @@ def main():
     after = len(df)
     log.info(f"🔄 Aggregated {before - after:,} duplicate Order/Product rows")
 
-    # -------------------------------
     # 7) Final type fix for Postal Code
-    # -------------------------------
     if "Postal Code" in df.columns:
         try:
             df["Postal Code"] = pd.to_numeric(df["Postal Code"], errors="coerce").astype("Int64")
         except Exception as e:
             log.warning(f"⚠️ Could not cast 'Postal Code' to Int64: {e}")
 
-    # -------------------------------
     # 8) Final validations
-    # -------------------------------
     if df.empty:
         raise ValueError("❌ No rows left after cleaning; aborting load")
 
     if df["Order Date"].isna().any() or df["Ship Date"].isna().any():
         raise ValueError("❌ Found NULL dates after cleaning; aborting load")
 
-    # -------------------------------
     # 9) Load to Postgres
-    # -------------------------------
     engine = get_engine()
     try:
         df.to_sql(
@@ -169,3 +148,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
