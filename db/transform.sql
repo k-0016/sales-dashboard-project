@@ -1,15 +1,11 @@
--- ==========================================
 -- DROP old objects if they exist
--- ==========================================
 DROP TABLE IF EXISTS dim_customer CASCADE;
 DROP TABLE IF EXISTS dim_product CASCADE;
 DROP TABLE IF EXISTS fact_sales CASCADE;
 DROP TABLE IF EXISTS kpi_daily CASCADE;
 DROP TABLE IF EXISTS cohort_analysis CASCADE;
 
--- ==========================================
 -- 1. Dimension: Customer
--- ==========================================
 CREATE TABLE dim_customer AS
 SELECT DISTINCT
     "Customer ID"   AS customer_id,
@@ -22,9 +18,7 @@ SELECT DISTINCT
     "Region"        AS region
 FROM raw_sales;
 
--- ==========================================
 -- 2. Dimension: Product
--- ==========================================
 CREATE TABLE dim_product AS
 SELECT DISTINCT
     "Product ID"    AS product_id,
@@ -33,10 +27,8 @@ SELECT DISTINCT
     "Product Name"  AS product_name
 FROM raw_sales;
 
--- ==========================================
 -- 3. Fact: Sales
 -- Deduplicate by Order ID + Product ID
--- ==========================================
 CREATE TABLE fact_sales AS
 SELECT
     ROW_NUMBER() OVER ()         AS row_id,
@@ -50,10 +42,8 @@ SELECT
 FROM raw_sales
 GROUP BY "Order ID", "Product ID";
 
--- ==========================================
 -- 4. KPI Table (Daily Metrics)
 -- avg_order_value guarded against nulls
--- ==========================================
 CREATE TABLE kpi_daily AS
 SELECT
     order_date,
@@ -68,10 +58,8 @@ FROM fact_sales
 GROUP BY order_date
 ORDER BY order_date;
 
--- ==========================================
 -- 5. Cohort Analysis (Retention)
 -- Proper CREATE TABLE with CTE
--- ==========================================
 CREATE TABLE cohort_analysis AS
 WITH first_purchase AS (
     SELECT
@@ -96,3 +84,4 @@ SELECT
 FROM order_periods
 GROUP BY cohort_month, order_month
 ORDER BY cohort_month, order_month;
+
