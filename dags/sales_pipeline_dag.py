@@ -7,10 +7,8 @@ import sys
 import pandas as pd
 from sqlalchemy import create_engine
 
-# 👇 Add this so Airflow can import tests, etl, forecast
 sys.path.append("/opt/airflow/dags")
 
-# Import main() functions from your scripts
 from etl.load_data import main as etl_main
 from forecast.revenue_forecast import main as forecast_main
 import subprocess
@@ -19,9 +17,7 @@ def tests_main():
     subprocess.run(["pytest", "-v", "/opt/airflow/dags/tests/"], check=True)
 
 
-# -------------------------------
 # Final sanity check function
-# -------------------------------
 def check_final_table():
     """Ensure actual_vs_forecast has rows for Tableau"""
     DB_USER = os.getenv("DB_USER", "salesuser")
@@ -38,9 +34,7 @@ def check_final_table():
     print(f"✅ actual_vs_forecast has {df['cnt'].iloc[0]} rows")
 
 
-# -------------------------------
 # DAG Definition
-# -------------------------------
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -90,5 +84,5 @@ with DAG(
         python_callable=check_final_table,
     )
 
-    # Task flow
     etl >> transform >> forecast >> join_view >> validate >> check_final
+
