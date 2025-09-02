@@ -124,8 +124,6 @@ The following dashboards demonstrate the insights produced by the pipeline:
 * Forecast vs Actual Revenue
 * Customer Segmentation and Retention
 
-*(Add screenshots here once ready)*
-
 ## Requirements
 
 * Docker and Docker Compose
@@ -145,5 +143,6 @@ The pipeline includes automated validation checks such as:
 * Cohort tables contain required columns
 
 ## License
+
 
 This project is released under the MIT License.
