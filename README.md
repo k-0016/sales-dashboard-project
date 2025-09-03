@@ -1,6 +1,6 @@
 ## Setup  
 
-### 1. Clone Repository  
+1. Clone Repository  
 ```bash
 git clone https://github.com/<your-username>/sales-analytics-pipeline.git
 cd sales-analytics-pipeline
@@ -64,3 +64,4 @@ docker-compose up -d --build
 Access the Airflow UI at http://localhost:8080 and trigger the sales_pipeline DAG.
 
 Once the pipeline completes, connect Tableau to PostgreSQL to visualize KPIs, forecasts, and cohort analytics.
+
